@@ -1,5 +1,6 @@
 class CoursesController < ApplicationController
     rescue_from ActiveRecord::RecordInvalid, with: :show_errors
+    rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
     def create
         course = Course.create!(course_params)
@@ -15,6 +16,12 @@ class CoursesController < ApplicationController
         render json: course
     end
 
+    def update
+        course = Course.find(params[:id])
+        course.update(course_params)
+        render json: course
+    end
+
     def destroy
         course = Course.find(params[:id])
         course.destroy
@@ -27,8 +34,13 @@ class CoursesController < ApplicationController
         render json: {errors: invalid.record.errors.full_messages}
     end
 
+    def not_found
+        render json: {errors: 'Course not found'}, status: :not_found
+    end
+
     def course_params
         params.permit(:name, :release_date)
     end
+
 
 end
